@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { FaUserFriends, FaFighterJet, FaTrophy } from 'react-icons/fa'
+import PropTypes from 'prop-types'
 
 const Instructions = () => {
   return (
@@ -27,11 +28,73 @@ const Instructions = () => {
   )
 }
 
-export default class Battle extends React.Component {
+class PlayerInput extends Component {
+  state = { username: '' }
+  handleSubmit = () => {
+    event.preventDefault()
+    this.props.onSubmit(this.state.username)
+  }
+  handleChange = ({ target }) => this.setState({ username: target.value })
   render() {
+    return (
+      <form onSubmit={this.handleSubmit} className='column player'>
+        <label htmlFor='username' className='player-label'>
+          {this.props.label}
+        </label>
+        <div className='row player-inputs'>
+          <input
+            type='text'
+            className='input-light'
+            placeholder='github username'
+            autoComplete='off'
+            onChange={this.handleChange}
+            value={this.state.username}
+          />
+          <button
+            className='btn btn-dark'
+            type='submit'
+            disabled={!this.state.username}>
+            Submit
+          </button>
+        </div>
+      </form>
+    )
+  }
+}
+
+PlayerInput.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  label: PropTypes.string.isRequired
+}
+
+export default class Battle extends Component {
+  state = {
+    playerOne: null,
+    playerTwo: null
+  }
+  render() {
+    const { playerOne, playerTwo } = this.state
     return (
       <>
         <Instructions />
+        <div className='players-container'>
+          <h1 className='center-text header-lg'>Players</h1>
+          <div className='row space-around'>
+            {!playerOne && (
+              <PlayerInput
+                label='Player One'
+                onSubmit={player => this.setState({ playerOne: player })}
+              />
+            )}
+
+            {!playerTwo && (
+              <PlayerInput
+                label='Player One'
+                onSubmit={player => this.setState({ playerTwo: player })}
+              />
+            )}
+          </div>
+        </div>
       </>
     )
   }
