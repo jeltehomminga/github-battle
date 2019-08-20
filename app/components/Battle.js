@@ -1,6 +1,12 @@
 import React, { Component } from 'react'
-import { FaUserFriends, FaFighterJet, FaTrophy } from 'react-icons/fa'
+import {
+  FaUserFriends,
+  FaFighterJet,
+  FaTrophy,
+  FaTimesCircle
+} from 'react-icons/fa'
 import PropTypes from 'prop-types'
+import Results from './Results'
 
 const Instructions = () => {
   return (
@@ -67,33 +73,88 @@ PlayerInput.propTypes = {
   label: PropTypes.string.isRequired
 }
 
+const PlayerPreview = ({ username, onReset, label }) => {
+  return (
+    <div className='column player'>
+      <h3 className='player-label'>{label}</h3>
+      <div className='row bg-light'>
+        <div className='player-info'>
+          <img
+            src={`https://github.com/${username}.png?size=200`}
+            alt={`Avatar for ${username}`}
+            className='avatar-small'
+          />
+          <a href={`https://github.com/${username}`} className='link'>
+            {username}
+          </a>
+        </div>
+        <button className='btn-clear flex-center' onClick={onReset}>
+          <FaTimesCircle color='rgb(194, 57, 42)' size={26} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+PlayerPreview.proptypes = {
+  username: PropTypes.string.isRequired,
+  onReset: PropTypes.func.isRequired,
+  label: PropTypes.string.isRequired
+}
+
 export default class Battle extends Component {
   state = {
     playerOne: null,
-    playerTwo: null
+    playerTwo: null,
+    battle: false
   }
   render() {
-    const { playerOne, playerTwo } = this.state
+    const { playerOne, playerTwo, battle } = this.state
+
+    if (battle) {
+      return <Results playerOne={playerOne} playerTwo={playerTwo} />
+    }
+
     return (
       <>
         <Instructions />
         <div className='players-container'>
           <h1 className='center-text header-lg'>Players</h1>
           <div className='row space-around'>
-            {!playerOne && (
+            {!playerOne ? (
               <PlayerInput
                 label='Player One'
                 onSubmit={player => this.setState({ playerOne: player })}
               />
+            ) : (
+              <PlayerPreview
+                username={playerOne}
+                label='Player One'
+                onReset={() => this.setState({ playerOne: null })}
+              />
             )}
 
-            {!playerTwo && (
+            {!playerTwo ? (
               <PlayerInput
                 label='Player One'
                 onSubmit={player => this.setState({ playerTwo: player })}
               />
+            ) : (
+              <PlayerPreview
+                username={playerTwo}
+                label='Player Two'
+                onReset={() => this.setState({ playerTwo: null })}
+              />
             )}
           </div>
+
+          {playerOne && playerTwo && (
+            <button
+              className='btn btn-dark btn-space'
+              onClick={() => this.setState({ battle: true })}>
+              Battle
+            </button>
+          )}
         </div>
       </>
     )
