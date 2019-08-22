@@ -120,7 +120,7 @@ export default class Battle extends Component {
         <Instructions />
         <div className='players-container'>
           <h1 className='center-text header-lg'>Players</h1>
-          <div className='row space-around'>
+          <div className='row space-around wrap'>
             {!playerOne ? (
               <PlayerInput
                 label='Player One'
