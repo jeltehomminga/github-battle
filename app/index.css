@@ -76,7 +76,7 @@ li {
 }
 
 .header-sm {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 300;
     margin: 10px;
 }
@@ -159,7 +159,7 @@ li {
 
 .battle-instructions li {
     flex: 1;
-    min-width: 300px;
+    min-width: 220px;
 }
 
 .battle-instructions svg {
