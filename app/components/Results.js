@@ -1,11 +1,10 @@
-import React from 'react'
+import React, { useState, useEffect, useReducer } from 'react'
 import { battle } from '../utils/api'
 import {
   FaCompass,
   FaBriefcase,
   FaUsers,
   FaUserFriends,
-  FaCode,
   FaUser
 } from 'react-icons/fa'
 import Card from './Card'
@@ -57,66 +56,75 @@ ProfileList.propTypes = {
   profile: PropTypes.object.isRequired
 }
 
-export default class Results extends React.Component {
-  state = {
+const battleReducer = (state, action) => {
+  if (action.type === 'succes') {
+    return {
+      ...state,
+      winner: action.players[0],
+      loser: action.players[1],
+      loading: false
+    }
+  } else if (action.type === 'error') {
+    return {
+      ...state,
+      error: action.error.message,
+      loading: false
+    }
+  } else {
+    throw new Error('That action type is not supported')
+  }
+}
+
+export default function Results({ location }) {
+  const { playerOne, playerTwo } = queryString.parse(location.search)
+  const [state, dispatch] = useReducer(battleReducer, {
     winner: null,
     loser: null,
     error: null,
     loading: true
-  }
-  componentDidMount = () => {
-    const { playerOne, playerTwo } = queryString.parse(
-      this.props.location.search
-    )
+  })
+
+  useEffect(() => {
+    console.log('check')
     battle([playerOne, playerTwo])
-      .then(players =>
-        this.setState({
-          winner: players[0],
-          loser: players[1],
-          error: null,
-          loading: false
-        })
-      )
-      .catch(({ message }) => {
-        this.setState({ error: message, loading: false })
-      })
+      .then(players => dispatch({ type: 'succes', players }))
+      .catch(error => dispatch({ type: 'error', error }))
+  }, [playerOne, playerTwo])
+
+  const { winner, loser, error, loading } = state
+
+  if (loading) {
+    return <Loading speed={400} text={'Fetching'} />
   }
-  render() {
-    const { winner, loser, error, loading } = this.state
 
-    if (loading) {
-      return <Loading speed={400} text={'Fetching'} />
-    }
-
-    if (error) {
-      return <p className='center-text error'>{error}</p>
-    }
-
-    return (
-      <>
-        <div className='grid space-around container-sm'>
-          <Card
-            header={winner.score === loser.score ? 'Tie' : 'Winner'}
-            subheader={`Score: ${winner.score.toLocaleString()}`}
-            avatar={winner.profile.avatar_url}
-            href={winner.profile.html_url}
-            name={winner.profile.login}>
-            <ProfileList profile={winner.profile} />
-          </Card>
-
-          <Card
-            header={loser.score === winner.score ? 'Tie' : 'Loser'}
-            subheader={`Score: ${loser.score.toLocaleString()}`}
-            avatar={loser.profile.avatar_url}
-            href={loser.profile.html_url}
-            name={loser.profile.login}>
-            <ProfileList profile={loser.profile} />
-          </Card>
-        </div>
-        <Link to={'/battle'} className='btn btn-dark btn-space'>
-          Reset
-        </Link>
-      </>
-    )
+  if (error) {
+    return <p className='center-text error'>{error}</p>
   }
+
+  return (
+    <>
+      <div className='grid space-around container-sm'>
+        <Card
+          header={winner.score === loser.score ? 'Tie' : 'Winner'}
+          subheader={`Score: ${winner.score.toLocaleString()}`}
+          avatar={winner.profile.avatar_url}
+          href={winner.profile.html_url}
+          name={winner.profile.login}>
+          <ProfileList profile={winner.profile} />
+        </Card>
+
+        <Card
+          header={loser.score === winner.score ? 'Tie' : 'Loser'}
+          subheader={`Score: ${loser.score.toLocaleString()}`}
+          avatar={loser.profile.avatar_url}
+          href={loser.profile.html_url}
+          name={loser.profile.login}>
+          <ProfileList profile={loser.profile} />
+        </Card>
+      </div>
+      <Link to={'/battle'} className='btn btn-dark btn-space'>
+        Reset
+      </Link>
+    </>
+  )
 }

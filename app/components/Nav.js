@@ -34,7 +34,7 @@ const Nav = ({ toggleTheme }) => {
         style={{ fontSize: 30 }}
         className='btn-clear'
         onClick={toggleTheme}>
-        {theme === 'light' ? '🌟' : '💡'}
+        {theme === 'light' ? '🔦' : '💡'}
       </button>
     </nav>
   )
